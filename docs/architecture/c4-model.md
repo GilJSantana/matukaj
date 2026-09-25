@@ -38,7 +38,7 @@ flowchart TB
     end
 
     subgraph backend_api["Backend API"]
-        api["FastAPI / Supabase Functions<br/>Regras de negócio, composição de dados e integração externa"]
+        api["Supabase Edge Functions<br/>Regras de negócio, composição de dados e integração externa"]
     end
 
     subgraph supabase["Supabase"]
