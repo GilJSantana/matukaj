@@ -21,7 +21,7 @@ O **Matukaj** visa modernizar e digitalizar o atendimento presencial de oficina 
 ## 🚀 Teclogias Utilizadas
 
 * **Frontend:** React + Vite + Tailwind CSS (Deploy na Vercel)
-* **Backend / API:** Python (FastAPI) ou Supabase Client (Edge Functions)
+* **Backend / API:** Supabase (PostgreSQL, Auth, Storage e Edge Functions), sem API dedicada
 * **Banco de Dados & Auth:** PostgreSQL + Supabase (Free Tier)
 * **Integração WhatsApp:** API Baileys (Node.js) ou Link Direct Dispatch (`wa.me`)
 * **CI/CD:** GitHub Actions
@@ -32,8 +32,8 @@ O **Matukaj** visa modernizar e digitalizar o atendimento presencial de oficina 
 
 ### Pré-requisitos
 * Node.js v18+
-* Python 3.10+ (opcional, caso rode a API dedicada)
-* Supabase CLI (`npm i -g supabase`)
+* Docker (para o Supabase local)
+* Supabase CLI: já incluído como dependência em `backend/` (use `npx supabase`)
 
 ### Passo a Passo
 
@@ -41,6 +41,21 @@ O **Matukaj** visa modernizar e digitalizar o atendimento presencial de oficina 
    ```bash
    git clone [https://github.com/GilJSantana/matukaj.git](https://github.com/GilJSantana/matukaj.git)
    cd matukaj
+   ```
+
+2. **Suba o Supabase local:**
+   ```bash
+   cd backend
+   npm install
+   npm start          # ao final, copie "API URL" e "anon key"
+   ```
+
+3. **Configure e rode o frontend:**
+   ```bash
+   cd ../frontend
+   cp .env.example .env.local   # cole a API URL e a anon key
+   npm install
+   npm run dev                  # http://localhost:5173
    ```
 
 ## 📁 Estrutura do Repositório
@@ -52,5 +67,5 @@ matukaj/
 │   ├── architecture/     # Diagramas Mermaid (Contexto, Container, Componentes)
 │   └── adr/              # Architecture Decision Records
 ├── frontend/             # Aplicação React (Vite, Tailwind CSS, PWA)
-└── backend/              # API FastAPI / Supabase Functions
+└── backend/              # Supabase: migrations, seed, Edge Functions e config local
 ```
