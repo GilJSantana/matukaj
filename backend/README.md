@@ -22,6 +22,10 @@ npm stop
 
 Studio local: http://127.0.0.1:54323
 
+Usuario local criado pelo `seed.sql`: `admin@matukaj.local` / `matukaj123`.
+
+O cadastro publico esta desligado (`enable_signup = false`): usuarios sao criados pelo Studio e precisam de uma linha ativa em `perfis` para acessar os dados. Na nuvem, desligue em Authentication > Sign In / Providers > "Allow new users to sign up".
+
 ## Estrutura
 
 ```text

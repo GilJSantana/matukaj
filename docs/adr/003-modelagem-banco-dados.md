@@ -37,8 +37,8 @@ Estas entidades tem estrutura estavel, se relacionam entre si e sao consultadas 
 
 | Tabela | Responsabilidade | Principais campos |
 | --- | --- | --- |
-| `clientes` | Cadastro de quem traz o veiculo | `id`, `nome`, `cpf_cnpj` (unico), `telefone` (normalizado para `wa.me`), `email`, `data_nascimento`, `created_at` |
-| `veiculos` | Veiculos de cada cliente | `id`, `cliente_id` (FK), `placa` (unica), `marca`, `modelo`, `ano`, `cor`, `chassi` |
+| `clientes` | Cadastro de quem traz o veiculo | `id`, `nome`, `cpf_cnpj` (unico), `telefone` (normalizado para `wa.me`), `email`, `data_nascimento`, `endereco`, `created_at` |
+| `veiculos` | Veiculos de cada cliente | `id`, `cliente_id` (FK), `placa` (unica), `marca`, `modelo`, `ano`, `cor`, `chassi`, `numero_motor` |
 | `ordens_servico` | Orcamentos e OS no mesmo registro, diferenciados por `status` | `id`, `numero` (sequencial), `veiculo_id` (FK), `cliente_id` (FK), `status` (`orcamento`, `aprovada`, `em_execucao`, `concluida`, `entregue`, `cancelada`), `km_entrada`, `valor_total`, `pdf_path`, `created_by`, datas de abertura/conclusao |
 | `itens_os` | Servicos e pecas de cada OS | `id`, `ordem_servico_id` (FK), `servico_id` (FK opcional para o catalogo), `descricao`, `quantidade`, `valor_unitario` (`numeric(12,2)`) |
 | `garantias` | Termos de garantia emitidos | `id`, `ordem_servico_id` (FK), `prazo_dias`, `km_limite`, `condicoes`, `emitida_em`, `pdf_path` |
