@@ -84,10 +84,10 @@ Os dados que mudam de formato ao longo do tempo ficam em colunas `JSONB` da tabe
 
 ```json
 {
-  "estepe": { "presente": true },
-  "macaco": { "presente": true },
-  "triangulo": { "presente": false, "obs": "Cliente informou que esta em casa" },
-  "som": { "presente": true, "marca": "Pioneer" }
+  "estepe": { "ok": true },
+  "macaco": { "ok": true },
+  "triangulo": { "ok": false, "obs": "Cliente informou que esta em casa" },
+  "pneus": { "ok": true }
 }
 ```
 
@@ -95,25 +95,27 @@ Os dados que mudam de formato ao longo do tempo ficam em colunas `JSONB` da tabe
 
 ```json
 [
-  { "vista": "lateral_esquerda", "x": 0.42, "y": 0.61, "tipo": "risco", "descricao": "Risco na porta traseira" },
-  { "vista": "frente", "x": 0.18, "y": 0.35, "tipo": "amassado" }
+  { "vista": "lateral_esquerda", "x": 0.42, "y": 0.61, "tipo": "riscado", "descricao": "Risco na porta traseira" },
+  { "vista": "teto", "x": 0.8, "y": 0.5, "tipo": "batido" }
 ]
 ```
 
 Regras:
 
-1. **Coordenadas normalizadas** entre `0` e `1`, relativas a imagem da vista (`frente`, `traseira`, `lateral_esquerda`, `lateral_direita`, `teto`). Assim a marcacao e reproduzida corretamente em qualquer tamanho de tela e no PDF.
+1. **Coordenadas normalizadas** entre `0` e `1`, relativas a imagem da vista (`frente`, `traseira`, `lateral_esquerda`, `lateral_direita`, `teto`). Assim a marcacao e reproduzida corretamente em qualquer tamanho de tela e no PDF. A tela de vistoria usa hoje as vistas `teto` (superior), `lateral_esquerda` e `lateral_direita`, desenhadas em SVG.
 2. **Fotos nao ficam no JSON**: imagens das avarias vao para o **Supabase Storage** e o JSON guarda somente o caminho (`foto_path`), mantendo o banco pequeno.
 3. **A definicao do checklist** (rotulos, tipos de resposta, ordem de exibicao, tipos de avaria) fica em `checklist_modelos.definicao`, e a vistoria guarda `checklist_modelo_id`. Uma vistoria antiga continua sendo exibida com os itens que existiam quando foi feita.
-4. **Validacao de formato no banco** por `CHECK` com `jsonb_typeof` (ex.: `avarias` deve ser array) e, quando necessario, pela extensao `pg_jsonschema`, disponivel no Supabase. A aplicacao valida o mesmo schema antes de enviar.
-5. **Nada que precise de integridade referencial, calculo financeiro ou filtro frequente entra no JSONB.** Se um campo do checklist passar a ser usado em relatorios, ele e promovido a coluna relacional.
+4. **Validacao de formato no banco** por `CHECK` com `jsonb_typeof` (`checklist` deve ser objeto) e pela extensao `pg_jsonschema` em `avarias` (array de `{ vista, x, y, tipo }`, com `x`/`y` entre 0 e 1 e `vista` entre as cinco acima).
+5. **Legenda das avarias** vem de `checklist_modelos.definicao.tipos_avaria` (versao 1: `batido` [X], `riscado` [-], `quebrado` [O]); `nivel_combustivel` e coluna (`0` vazio a `4` cheio, em quartos de tanque), nao item do JSON.
+6. **A vistoria abre a OS**: `registrar_vistoria()` cria a OS em `orcamento` e grava a vistoria na mesma transacao, uma vistoria por OS.
+7. **Nada que precise de integridade referencial, calculo financeiro ou filtro frequente entra no JSONB.** Se um campo do checklist passar a ser usado em relatorios, ele e promovido a coluna relacional.
 
 ### Vantagens de performance e flexibilidade
 
 - **Alteracoes no checklist sem migracao de schema**: incluir, remover ou renomear um item (ex.: "cabo de chupeta", "tag de pedagio") ou um novo tipo de avaria e apenas inserir uma nova linha em `checklist_modelos`. Nao ha `ALTER TABLE`, nao ha deploy de migracao e as vistorias antigas nao sao afetadas.
 - **Leitura em uma unica linha**: a tela e o PDF da vistoria carregam checklist e todas as avarias em um unico `SELECT` por `id`, sem joins com tabelas de itens nem dezenas de linhas por vistoria como em um modelo EAV.
 - **Escrita atomica**: a vistoria inteira e salva em uma operacao, o que simplifica o fluxo no tablet/celular da recepcao e o funcionamento do PWA com conexao instavel.
-- **Formato binario indexavel**: `JSONB` e armazenado ja decomposto, sem reparse na leitura, e aceita indice **GIN** (`jsonb_path_ops`) para consultas eventuais como "vistorias com avaria do tipo trinca" (`avarias @> '[{"tipo": "trinca"}]'`).
+- **Formato binario indexavel**: `JSONB` e armazenado ja decomposto, sem reparse na leitura, e aceita indice **GIN** (`jsonb_path_ops`) para consultas eventuais como "vistorias com avaria do tipo quebrado" (`avarias @> '[{"tipo": "quebrado"}]'`).
 - **Armazenamento compacto**: uma vistoria tipica ocupa poucos KB, com compressao TOAST automatica em documentos maiores; com fotos no Storage, o impacto no limite de 500 MB e pequeno.
 - **Nucleo relacional intacto**: clientes, veiculos e OS mantem indices B-tree, chaves estrangeiras e tipos fortes; o JSONB fica isolado onde a flexibilidade compensa.
 
