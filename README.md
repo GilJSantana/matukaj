@@ -31,7 +31,7 @@ O **Matukaj** visa modernizar e digitalizar o atendimento presencial de oficina 
 ## 🛠️ Como Executar Localmente
 
 ### Pré-requisitos
-* Node.js v18+
+* Node.js v20.19+ (Vite 8)
 * Docker (para o Supabase local)
 * Supabase CLI: já incluído como dependência em `backend/` (use `npx supabase`)
 
