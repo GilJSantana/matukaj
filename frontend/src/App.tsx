@@ -6,10 +6,14 @@ import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { ClientePage } from './pages/ClientePage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
-import { supabase } from './services/supabase'
+import { VistoriaPage } from './pages/VistoriaPage'
+import { supabase, type Veiculo } from './services/supabase'
 
 // ponytail: navegacao por estado, sem URL; adotar um router quando houver mais telas
-type Tela = { nome: 'inicio' } | { nome: 'cliente'; id: number | null }
+type Tela =
+  | { nome: 'inicio' }
+  | { nome: 'cliente'; id: number | null }
+  | { nome: 'vistoria'; veiculo: Veiculo; osId: number | null }
 
 function App() {
   const online = useOnlineStatus()
@@ -55,14 +59,23 @@ function App() {
         </div>
       </header>
       <main className="mx-auto max-w-3xl p-4">
-        {tela.nome === 'inicio' ? (
-          <HomePage onAbrirCliente={abrirCliente} />
-        ) : (
+        {tela.nome === 'inicio' && <HomePage onAbrirCliente={abrirCliente} />}
+        {tela.nome === 'cliente' && (
           <ClientePage
             key={tela.id ?? 'novo'}
             id={tela.id}
             onAbrir={abrirCliente}
+            onVistoria={(veiculo, osId) => setTela({ nome: 'vistoria', veiculo, osId })}
             onVoltar={() => setTela({ nome: 'inicio' })}
+          />
+        )}
+        {tela.nome === 'vistoria' && (
+          <VistoriaPage
+            key={tela.osId ?? 'nova'}
+            veiculo={tela.veiculo}
+            osId={tela.osId}
+            onSalva={(osId) => setTela({ ...tela, osId })}
+            onVoltar={() => abrirCliente(tela.veiculo.cliente_id)}
           />
         )}
       </main>
