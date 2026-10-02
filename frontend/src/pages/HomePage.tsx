@@ -1,27 +1,19 @@
-import { Database, Wifi, WifiOff, Wrench } from 'lucide-react'
-import { StatusBadge } from '../components/StatusBadge'
-import { useOnlineStatus } from '../hooks/useOnlineStatus'
-import { isSupabaseConfigured } from '../services/supabase'
+import { UserPlus } from 'lucide-react'
+import { Aniversariantes } from '../components/Aniversariantes'
+import { Botao } from '../components/Botao'
+import { BuscaRapida } from '../components/BuscaRapida'
 
-export function HomePage() {
-  const online = useOnlineStatus()
-
+export function HomePage({ onAbrirCliente }: { onAbrirCliente: (id: number | null) => void }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <section className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">
-        <Wrench className="mx-auto size-12 text-slate-700" aria-hidden />
-        <h1 className="mt-4 text-2xl font-bold text-slate-900">Matukaj</h1>
-        <p className="mt-2 text-slate-600">Gestao de ordens de servico e vistoria veicular</p>
-
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <StatusBadge icon={online ? Wifi : WifiOff} label={online ? 'Online' : 'Offline'} ok={online} />
-          <StatusBadge
-            icon={Database}
-            label={isSupabaseConfigured ? 'Supabase configurado' : 'Supabase nao configurado'}
-            ok={isSupabaseConfigured}
-          />
-        </div>
-      </section>
-    </main>
+    <div className="flex flex-col gap-6">
+      <Aniversariantes onAbrir={onAbrirCliente} />
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-900">Clientes</h2>
+        <Botao onClick={() => onAbrirCliente(null)}>
+          <UserPlus className="size-4" aria-hidden /> Novo cliente
+        </Botao>
+      </div>
+      <BuscaRapida onAbrir={onAbrirCliente} />
+    </div>
   )
 }

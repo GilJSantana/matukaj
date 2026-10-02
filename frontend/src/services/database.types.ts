@@ -51,13 +51,13 @@ export type Database = {
                   ]
                 },"clientes": {
                   Row: {
-                    "cpf_cnpj": string | null,"created_at": string,"data_nascimento": string | null,"email": string | null,"id": number,"nome": string,"telefone": string | null
+                    "cpf_cnpj": string | null,"created_at": string,"data_nascimento": string | null,"email": string | null,"endereco": string | null,"id": number,"nome": string,"telefone": string | null
                   }
                   Insert: {
-                    "cpf_cnpj"?: string | null,"created_at"?: string,"data_nascimento"?: string | null,"email"?: string | null,"id"?: never,"nome": string,"telefone"?: string | null
+                    "cpf_cnpj"?: string | null,"created_at"?: string,"data_nascimento"?: string | null,"email"?: string | null,"endereco"?: string | null,"id"?: never,"nome": string,"telefone"?: string | null
                   }
                   Update: {
-                    "cpf_cnpj"?: string | null,"created_at"?: string,"data_nascimento"?: string | null,"email"?: string | null,"id"?: never,"nome"?: string,"telefone"?: string | null
+                    "cpf_cnpj"?: string | null,"created_at"?: string,"data_nascimento"?: string | null,"email"?: string | null,"endereco"?: string | null,"id"?: never,"nome"?: string,"telefone"?: string | null
                   }
                   Relationships: [
                     
@@ -146,13 +146,13 @@ isOneToOne: false
                   ]
                 },"veiculos": {
                   Row: {
-                    "ano": number | null,"chassi": string | null,"cliente_id": number,"cor": string | null,"created_at": string,"id": number,"marca": string | null,"modelo": string | null,"placa": string
+                    "ano": number | null,"chassi": string | null,"cliente_id": number,"cor": string | null,"created_at": string,"id": number,"marca": string | null,"modelo": string | null,"numero_motor": string | null,"placa": string
                   }
                   Insert: {
-                    "ano"?: number | null,"chassi"?: string | null,"cliente_id": number,"cor"?: string | null,"created_at"?: string,"id"?: never,"marca"?: string | null,"modelo"?: string | null,"placa": string
+                    "ano"?: number | null,"chassi"?: string | null,"cliente_id": number,"cor"?: string | null,"created_at"?: string,"id"?: never,"marca"?: string | null,"modelo"?: string | null,"numero_motor"?: string | null,"placa": string
                   }
                   Update: {
-                    "ano"?: number | null,"chassi"?: string | null,"cliente_id"?: number,"cor"?: string | null,"created_at"?: string,"id"?: never,"marca"?: string | null,"modelo"?: string | null,"placa"?: string
+                    "ano"?: number | null,"chassi"?: string | null,"cliente_id"?: number,"cor"?: string | null,"created_at"?: string,"id"?: never,"marca"?: string | null,"modelo"?: string | null,"numero_motor"?: string | null,"placa"?: string
                   }
                   Relationships: [
                     {
@@ -169,10 +169,47 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "expurgar_auditoria":
+            "aniversariantes_do_dia":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "cpf_cnpj": string | null,
+"created_at": string,
+"data_nascimento": string | null,
+"email": string | null,
+"endereco": string | null,
+"id": number,
+"nome": string,
+"telefone": string | null
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "clientes"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"buscar_clientes":
+{ Args: { "termo": string }; Returns: {
+              "cpf_cnpj": string | null,
+"created_at": string,
+"data_nascimento": string | null,
+"email": string | null,
+"endereco": string | null,
+"id": number,
+"nome": string,
+"telefone": string | null
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "clientes"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"expurgar_auditoria":
 { Args: { "retencao"?: string }; Returns: number
                            },
 "is_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            }
           }
