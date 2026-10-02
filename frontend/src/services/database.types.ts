@@ -49,6 +49,19 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"checklist_modelos": {
+                  Row: {
+                    "ativo": boolean,"created_at": string,"definicao": NonNullable<Json>,"id": number,"versao": number
+                  }
+                  Insert: {
+                    "ativo"?: boolean,"created_at"?: string,"definicao": NonNullable<Json>,"id"?: never,"versao": number
+                  }
+                  Update: {
+                    "ativo"?: boolean,"created_at"?: string,"definicao"?: NonNullable<Json>,"id"?: never,"versao"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"clientes": {
                   Row: {
                     "cpf_cnpj": string | null,"created_at": string,"data_nascimento": string | null,"email": string | null,"endereco": string | null,"id": number,"nome": string,"telefone": string | null
@@ -163,6 +176,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"vistorias": {
+                  Row: {
+                    "avarias": NonNullable<Json>,"checklist": NonNullable<Json>,"checklist_modelo_id": number,"id": number,"nivel_combustivel": number | null,"observacoes": string | null,"ordem_servico_id": number,"realizada_em": string,"realizada_por": string | null
+                  }
+                  Insert: {
+                    "avarias"?: NonNullable<Json>,"checklist"?: NonNullable<Json>,"checklist_modelo_id": number,"id"?: never,"nivel_combustivel"?: number | null,"observacoes"?: string | null,"ordem_servico_id": number,"realizada_em"?: string,"realizada_por"?: string | null
+                  }
+                  Update: {
+                    "avarias"?: NonNullable<Json>,"checklist"?: NonNullable<Json>,"checklist_modelo_id"?: number,"id"?: never,"nivel_combustivel"?: number | null,"observacoes"?: string | null,"ordem_servico_id"?: number,"realizada_em"?: string,"realizada_por"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "vistorias_checklist_modelo_id_fkey"
+      columns: ["checklist_modelo_id"]
+isOneToOne: false
+      referencedRelation: "checklist_modelos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "vistorias_ordem_servico_id_fkey"
+      columns: ["ordem_servico_id"]
+isOneToOne: true
+      referencedRelation: "ordens_servico"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -208,6 +246,9 @@ isOneToOne: false
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"registrar_vistoria":
+{ Args: { "avarias": Json,"checklist": Json,"checklist_modelo_id": number,"km_entrada"?: number,"nivel_combustivel"?: number,"observacoes"?: string,"veiculo_id": number }; Returns: number
                            },
 "usuario_ativo":
 { Args: Record<PropertyKey, never>; Returns: boolean

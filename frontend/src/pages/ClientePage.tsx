@@ -1,10 +1,19 @@
-import { ArrowLeft, Cake, Car, Pencil, Plus } from 'lucide-react'
+import { ArrowLeft, Cake, Car, ClipboardCheck, Pencil, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ClienteForm } from '../components/ClienteForm'
 import { VeiculoForm } from '../components/VeiculoForm'
 import { supabase, type Cliente, type Veiculo } from '../services/supabase'
 
-type Props = { id: number | null; onAbrir: (id: number) => void; onVoltar: () => void }
+type VeiculoComOS = Veiculo & {
+  ordens_servico: { id: number; aberta_em: string; vistorias: { id: number } | null }[]
+}
+
+type Props = {
+  id: number | null
+  onAbrir: (id: number) => void
+  onVistoria: (veiculo: Veiculo, osId: number | null) => void
+  onVoltar: () => void
+}
 
 function fazAniversarioHoje(dataNascimento: string | null) {
   const hoje = new Date()
@@ -12,9 +21,9 @@ function fazAniversarioHoje(dataNascimento: string | null) {
   return dataNascimento?.slice(5) === mmdd
 }
 
-export function ClientePage({ id, onAbrir, onVoltar }: Props) {
+export function ClientePage({ id, onAbrir, onVistoria, onVoltar }: Props) {
   const [cliente, setCliente] = useState<Cliente | null>(null)
-  const [veiculos, setVeiculos] = useState<Veiculo[]>([])
+  const [veiculos, setVeiculos] = useState<VeiculoComOS[]>([])
   const [editando, setEditando] = useState<number | 'novo' | null>(null)
 
   // incrementar recarrega cliente e veiculos do banco
@@ -25,7 +34,7 @@ export function ClientePage({ id, onAbrir, onVoltar }: Props) {
     if (id === null) return
     supabase!
       .from('clientes')
-      .select('*, veiculos(*)')
+      .select('*, veiculos(*, ordens_servico(id, aberta_em, vistorias(id)))')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -83,17 +92,38 @@ export function ClientePage({ id, onAbrir, onVoltar }: Props) {
             editando === v.id ? (
               <VeiculoForm key={v.id} clienteId={cliente.id} veiculo={v} onSalvo={recarregar} onCancelar={() => setEditando(null)} />
             ) : (
-              <div key={v.id} className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
-                <div>
-                  <p className="font-mono font-semibold text-slate-900">{v.placa}</p>
-                  <p className="text-sm text-slate-600">
-                    {[v.marca, v.modelo, v.ano, v.cor].filter(Boolean).join(' · ')}
-                    {v.numero_motor && ` · Motor ${v.numero_motor}`}
-                  </p>
+              <div key={v.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-mono font-semibold text-slate-900">{v.placa}</p>
+                    <p className="text-sm text-slate-600">
+                      {[v.marca, v.modelo, v.ano, v.cor].filter(Boolean).join(' · ')}
+                      {v.numero_motor && ` · Motor ${v.numero_motor}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => onVistoria(v, null)}
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100"
+                    >
+                      <ClipboardCheck className="size-4" aria-hidden /> Nova vistoria
+                    </button>
+                    <button onClick={() => setEditando(v.id)} className="p-2 text-slate-500 hover:text-slate-900" aria-label={`Editar ${v.placa}`}>
+                      <Pencil className="size-4" aria-hidden />
+                    </button>
+                  </div>
                 </div>
-                <button onClick={() => setEditando(v.id)} className="p-2 text-slate-500 hover:text-slate-900" aria-label={`Editar ${v.placa}`}>
-                  <Pencil className="size-4" aria-hidden />
-                </button>
+                {v.ordens_servico
+                  .filter((os) => os.vistorias)
+                  .map((os) => (
+                    <button
+                      key={os.id}
+                      onClick={() => onVistoria(v, os.id)}
+                      className="self-start text-sm text-slate-600 hover:underline"
+                    >
+                      Vistoria da OS nº {os.id} · {new Date(os.aberta_em).toLocaleDateString('pt-BR')}
+                    </button>
+                  ))}
               </div>
             ),
           )}
