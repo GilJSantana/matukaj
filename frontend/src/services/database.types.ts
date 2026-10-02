@@ -23,7 +23,20 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "catalogo_servicos": {
+            "auditoria": {
+                  Row: {
+                    "acao": string,"created_at": string,"dados_anteriores": Json | null,"id": number,"registro_id": number,"tabela": string,"usuario_id": string | null
+                  }
+                  Insert: {
+                    "acao": string,"created_at"?: string,"dados_anteriores"?: Json | null,"id"?: never,"registro_id": number,"tabela": string,"usuario_id"?: string | null
+                  }
+                  Update: {
+                    "acao"?: string,"created_at"?: string,"dados_anteriores"?: Json | null,"id"?: never,"registro_id"?: number,"tabela"?: string,"usuario_id"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"catalogo_servicos": {
                   Row: {
                     "ativo": boolean,"descricao": string,"id": number,"valor_sugerido": number
                   }
@@ -48,6 +61,25 @@ export type Database = {
                   }
                   Relationships: [
                     
+                  ]
+                },"garantias": {
+                  Row: {
+                    "condicoes": string | null,"emitida_em": string,"id": number,"km_limite": number | null,"ordem_servico_id": number,"pdf_path": string | null,"prazo_dias": number
+                  }
+                  Insert: {
+                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id": number,"pdf_path"?: string | null,"prazo_dias": number
+                  }
+                  Update: {
+                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id"?: number,"pdf_path"?: string | null,"prazo_dias"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "garantias_ordem_servico_id_fkey"
+      columns: ["ordem_servico_id"]
+isOneToOne: false
+      referencedRelation: "ordens_servico"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"itens_os": {
                   Row: {
@@ -99,6 +131,19 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"perfis": {
+                  Row: {
+                    "ativo": boolean,"id": string,"nome": string,"papel": Database["public"]['Enums']["papel_usuario"]
+                  }
+                  Insert: {
+                    "ativo"?: boolean,"id": string,"nome": string,"papel": Database["public"]['Enums']["papel_usuario"]
+                  }
+                  Update: {
+                    "ativo"?: boolean,"id"?: string,"nome"?: string,"papel"?: Database["public"]['Enums']["papel_usuario"]
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"veiculos": {
                   Row: {
                     "ano": number | null,"chassi": string | null,"cliente_id": number,"cor": string | null,"created_at": string,"id": number,"marca": string | null,"modelo": string | null,"placa": string
@@ -124,10 +169,15 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "expurgar_auditoria":
+{ Args: { "retencao"?: string }; Returns: number
+                           },
+"is_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           }
           }
           Enums: {
-            "os_status": "orcamento"|"aprovada"|"em_execucao"|"concluida"|"entregue"|"cancelada"
+            "os_status": "orcamento"|"aprovada"|"em_execucao"|"concluida"|"entregue"|"cancelada","papel_usuario": "admin"|"atendente"|"mecanico"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -247,8 +297,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "os_status": ["orcamento", "aprovada", "em_execucao", "concluida", "entregue", "cancelada"]
+            "os_status": ["orcamento", "aprovada", "em_execucao", "concluida", "entregue", "cancelada"],"papel_usuario": ["admin", "atendente", "mecanico"]
           }
         }
 } as const
-
