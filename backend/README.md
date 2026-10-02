@@ -16,6 +16,7 @@ npm run status                     # mostra URL da API e anon key para o fronten
 npm run migration:new -- <nome>    # cria supabase/migrations/<timestamp>_<nome>.sql
 npm run db:reset                   # recria o banco aplicando migrations + seed.sql
 npm run types                      # gera frontend/src/services/database.types.ts
+npx supabase test db               # roda os testes pgTAP de supabase/tests/database
 npm stop
 ```
 
@@ -27,6 +28,7 @@ Studio local: http://127.0.0.1:54323
 supabase/
 ├── config.toml    # configuracao do ambiente local
 ├── migrations/    # schema versionado (ver docs/adr/003-modelagem-banco-dados.md)
+├── tests/         # testes pgTAP (supabase test db)
 ├── functions/     # Edge Functions
 └── seed.sql       # dados iniciais (oficina_config, checklist_modelos)
 ```

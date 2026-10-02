@@ -69,7 +69,10 @@ Justificativas:
 - **`oficina_config`** evita dados da oficina fixos no codigo; mudar telefone, endereco ou prazo padrao de garantia nao exige novo deploy.
 - **`catalogo_servicos`** e relacional porque e consultado por texto (indice `pg_trgm` para o autocomplete). `itens_os.descricao` guarda uma copia do texto, entao alterar o catalogo nao altera OS ja emitidas; a digitacao livre continua possivel com `servico_id` nulo.
 - **`checklist_modelos`** e a peca que torna o JSONB seguro: a definicao dos itens fica versionada no banco e cada vistoria referencia a versao usada, preservando o historico (ver secao 3).
-- **`auditoria`** e preenchida por *trigger* apenas nas tabelas sensiveis (`ordens_servico`, `itens_os`, `garantias`), registrando quem mudou status ou valores. Para respeitar o limite de 500 MB, registros antigos podem ser expurgados por rotina periodica.
+- **`auditoria`** e preenchida por *trigger* apenas nas tabelas sensiveis (`ordens_servico`, `itens_os`, `garantias`), registrando quem mudou status ou valores:
+  - O trigger `registrar_auditoria()` (`AFTER INSERT OR UPDATE OR DELETE`, por linha) grava `tabela`, `registro_id`, `acao` (`INSERT`, `UPDATE`, `DELETE`), a linha anterior inteira em `dados_anteriores` (nulo no `INSERT`), `usuario_id` (`auth.uid()`; nulo em mudancas feitas fora da API) e `created_at`. `UPDATE` que nao altera nenhum valor nao gera registro.
+  - **Somente leitura e somente admin**: RLS permite `SELECT` apenas a quem tem `perfis.papel = 'admin'` (funcao `is_admin()`). Nao ha policy de escrita e os privilegios de `INSERT`, `UPDATE`, `DELETE` e `TRUNCATE` sao revogados de `anon`, `authenticated` e `service_role`; so o trigger e o expurgo (ambos `security definer`) escrevem na tabela.
+  - **Expurgo**: para respeitar o limite de 500 MB, `expurgar_auditoria(retencao interval default '1 year')` remove registros mais antigos que a retencao. Roda diariamente as 03:00 UTC via `pg_cron` (job `expurgo-auditoria`) e nao pode ser chamada pela API. Para mudar a retencao, reagendar o job com outro intervalo.
 
 Ficam **fora do escopo** (sem necessidade atual, reavaliar quando surgirem): multiempresa/multiplas oficinas, filas de notificacao (o envio e manual via `wa.me`, ADR 002), controle de estoque de pecas e tabelas de permissao granular alem dos papeis acima.
 
