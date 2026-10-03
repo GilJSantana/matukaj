@@ -6,6 +6,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { ClientePage } from './pages/ClientePage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { OrdemServicoPage } from './pages/OrdemServicoPage'
 import { VistoriaPage } from './pages/VistoriaPage'
 import { supabase, type Veiculo } from './services/supabase'
 
@@ -14,6 +15,7 @@ type Tela =
   | { nome: 'inicio' }
   | { nome: 'cliente'; id: number | null }
   | { nome: 'vistoria'; veiculo: Veiculo; osId: number | null }
+  | { nome: 'os'; id: number }
 
 function App() {
   const online = useOnlineStatus()
@@ -42,6 +44,7 @@ function App() {
   if (!session) return <LoginPage />
 
   const abrirCliente = (id: number | null) => setTela({ nome: 'cliente', id })
+  const abrirOS = (id: number) => setTela({ nome: 'os', id })
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -65,7 +68,8 @@ function App() {
             key={tela.id ?? 'novo'}
             id={tela.id}
             onAbrir={abrirCliente}
-            onVistoria={(veiculo, osId) => setTela({ nome: 'vistoria', veiculo, osId })}
+            onAbrirOrcamento={(veiculo) => setTela({ nome: 'vistoria', veiculo, osId: null })}
+            onAbrirOS={abrirOS}
             onVoltar={() => setTela({ nome: 'inicio' })}
           />
         )}
@@ -74,8 +78,16 @@ function App() {
             key={tela.osId ?? 'nova'}
             veiculo={tela.veiculo}
             osId={tela.osId}
-            onSalva={(osId) => setTela({ ...tela, osId })}
-            onVoltar={() => abrirCliente(tela.veiculo.cliente_id)}
+            onSalva={abrirOS}
+            onVoltar={() => (tela.osId ? abrirOS(tela.osId) : abrirCliente(tela.veiculo.cliente_id))}
+          />
+        )}
+        {tela.nome === 'os' && (
+          <OrdemServicoPage
+            key={tela.id}
+            id={tela.id}
+            onVistoria={(veiculo) => setTela({ nome: 'vistoria', veiculo, osId: tela.id })}
+            onVoltar={abrirCliente}
           />
         )}
       </main>
