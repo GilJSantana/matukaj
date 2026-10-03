@@ -23,23 +23,6 @@ select is(
   'INSERT em OS, item e garantia e auditado'
 );
 
-update public.ordens_servico set status = 'aprovada';
-select is(
-  (select dados_anteriores ->> 'status' from public.auditoria
-   where tabela = 'ordens_servico' and acao = 'UPDATE'),
-  'orcamento', 'UPDATE guarda o status anterior'
-);
-select is(
-  (select usuario_id from public.auditoria where tabela = 'ordens_servico' and acao = 'UPDATE'),
-  '00000000-0000-0000-0000-00000000000b'::uuid, 'UPDATE registra auth.uid()'
-);
-
-update public.ordens_servico set status = status;
-select is(
-  (select count(*)::int from public.auditoria where tabela = 'ordens_servico' and acao = 'UPDATE'), 1,
-  'UPDATE sem mudanca nao e auditado'
-);
-
 update public.itens_os set valor_unitario = 150;
 select is(
   (select (dados_anteriores ->> 'valor_unitario')::numeric from public.auditoria
@@ -61,6 +44,27 @@ select is(
   'Retifica', 'DELETE guarda a linha removida'
 );
 
+-- itens so mudam no orcamento: a aprovacao vem depois e precisa de um item
+insert into public.itens_os (ordem_servico_id, descricao, valor_unitario)
+  select id, 'Bloco', 200 from public.ordens_servico;
+
+update public.ordens_servico set status = 'aprovada';
+select is(
+  (select dados_anteriores ->> 'status' from public.auditoria
+   where tabela = 'ordens_servico' and acao = 'UPDATE'),
+  'orcamento', 'UPDATE guarda o status anterior'
+);
+select is(
+  (select usuario_id from public.auditoria where tabela = 'ordens_servico' and acao = 'UPDATE'),
+  '00000000-0000-0000-0000-00000000000b'::uuid, 'UPDATE registra auth.uid()'
+);
+
+update public.ordens_servico set status = status;
+select is(
+  (select count(*)::int from public.auditoria where tabela = 'ordens_servico' and acao = 'UPDATE'), 1,
+  'UPDATE sem mudanca nao e auditado'
+);
+
 -- RLS
 set local role authenticated;
 select is_empty('select * from public.auditoria', 'nao-admin nao le auditoria');
@@ -76,7 +80,7 @@ select throws_ok('select public.expurgar_auditoria()', '42501', null, 'authentic
 reset role;
 update public.auditoria set created_at = now() - interval '2 years'
   where tabela = 'itens_os';
-select is(public.expurgar_auditoria(), 3::bigint, 'expurgo remove so registros fora da retencao');
+select is(public.expurgar_auditoria(), 4::bigint, 'expurgo remove so registros fora da retencao');
 
 select * from finish();
 rollback;
