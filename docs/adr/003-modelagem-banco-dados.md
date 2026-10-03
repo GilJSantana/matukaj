@@ -48,6 +48,8 @@ Justificativas:
 
 - **Integridade referencial**: nao existe OS sem veiculo, nem veiculo sem cliente. Isso e garantido pelo banco, nao pela aplicacao.
 - **Orcamento e OS na mesma tabela**: a funcionalidade "converter orcamento em OS com 1 clique" vira apenas uma mudanca de `status`, sem copia de dados entre tabelas.
+  - O trigger `validar_status_os` so permite avancar uma etapa por vez: `orcamento` -> `aprovada` (exibida como "Pendente") -> `em_execucao` -> `concluida` (preenche `concluida_em`) -> `entregue`. O cancelamento so e aceito em `orcamento` ou `aprovada`, e orcamento sem itens nao pode ser aprovado.
+  - Depois da aprovacao os `itens_os` ficam bloqueados (trigger `bloquear_itens_os_aprovada`): o valor aprovado pelo cliente nao muda sem um novo orcamento.
 - **Valores monetarios** em `numeric`, nunca em JSON ou `float`, evitando erros de arredondamento em documentos enviados ao cliente.
 - **Consultas diretas e indexaveis**: busca por placa, por telefone, OS por status e aniversariantes do dia (indice sobre mes/dia de `data_nascimento`) usam indices B-tree comuns.
 
