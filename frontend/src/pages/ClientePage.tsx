@@ -1,17 +1,25 @@
-import { ArrowLeft, Cake, Car, ClipboardCheck, Pencil, Plus } from 'lucide-react'
+import { ArrowLeft, Cake, Car, FilePlus, Pencil, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ClienteForm } from '../components/ClienteForm'
+import { StatusOS } from '../components/StatusOS'
 import { VeiculoForm } from '../components/VeiculoForm'
+import { reais, totalItens, type StatusOS as Status } from '../services/os'
 import { supabase, type Cliente, type Veiculo } from '../services/supabase'
 
 type VeiculoComOS = Veiculo & {
-  ordens_servico: { id: number; aberta_em: string; vistorias: { id: number } | null }[]
+  ordens_servico: {
+    id: number
+    aberta_em: string
+    status: Status
+    itens_os: { descricao: string; quantidade: number; valor_unitario: number }[]
+  }[]
 }
 
 type Props = {
   id: number | null
   onAbrir: (id: number) => void
-  onVistoria: (veiculo: Veiculo, osId: number | null) => void
+  onAbrirOrcamento: (veiculo: Veiculo) => void
+  onAbrirOS: (id: number) => void
   onVoltar: () => void
 }
 
@@ -21,7 +29,7 @@ function fazAniversarioHoje(dataNascimento: string | null) {
   return dataNascimento?.slice(5) === mmdd
 }
 
-export function ClientePage({ id, onAbrir, onVistoria, onVoltar }: Props) {
+export function ClientePage({ id, onAbrir, onAbrirOrcamento, onAbrirOS, onVoltar }: Props) {
   const [cliente, setCliente] = useState<Cliente | null>(null)
   const [veiculos, setVeiculos] = useState<VeiculoComOS[]>([])
   const [editando, setEditando] = useState<number | 'novo' | null>(null)
@@ -34,7 +42,8 @@ export function ClientePage({ id, onAbrir, onVistoria, onVoltar }: Props) {
     if (id === null) return
     supabase!
       .from('clientes')
-      .select('*, veiculos(*, ordens_servico(id, aberta_em, vistorias(id)))')
+      .select('*, veiculos(*, ordens_servico(id, aberta_em, status, itens_os(descricao, quantidade, valor_unitario)))')
+      .order('id', { referencedTable: 'veiculos.ordens_servico', ascending: false })
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -103,27 +112,39 @@ export function ClientePage({ id, onAbrir, onVistoria, onVoltar }: Props) {
                   </div>
                   <div className="flex items-center">
                     <button
-                      onClick={() => onVistoria(v, null)}
+                      onClick={() => onAbrirOrcamento(v)}
                       className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100"
                     >
-                      <ClipboardCheck className="size-4" aria-hidden /> Nova vistoria
+                      <FilePlus className="size-4" aria-hidden /> Abrir orçamento
                     </button>
                     <button onClick={() => setEditando(v.id)} className="p-2 text-slate-500 hover:text-slate-900" aria-label={`Editar ${v.placa}`}>
                       <Pencil className="size-4" aria-hidden />
                     </button>
                   </div>
                 </div>
-                {v.ordens_servico
-                  .filter((os) => os.vistorias)
-                  .map((os) => (
-                    <button
-                      key={os.id}
-                      onClick={() => onVistoria(v, os.id)}
-                      className="self-start text-sm text-slate-600 hover:underline"
-                    >
-                      Vistoria da OS nº {os.id} · {new Date(os.aberta_em).toLocaleDateString('pt-BR')}
-                    </button>
-                  ))}
+                {v.ordens_servico.length > 0 && (
+                  <div className="border-t border-slate-100 pt-2">
+                    <h4 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Histórico de serviços</h4>
+                    <ul>
+                      {v.ordens_servico.map((os) => (
+                        <li key={os.id}>
+                          <button
+                            onClick={() => onAbrirOS(os.id)}
+                            className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-lg px-1 py-2 text-left text-sm hover:bg-slate-50"
+                          >
+                            <span className="font-semibold text-slate-900">nº {os.id}</span>
+                            <span className="text-slate-500">{new Date(os.aberta_em).toLocaleDateString('pt-BR')}</span>
+                            <span className="min-w-0 flex-1 truncate text-slate-600">
+                              {os.itens_os.map((i) => i.descricao).join(', ')}
+                            </span>
+                            <span className="text-slate-900">{reais(totalItens(os.itens_os))}</span>
+                            <StatusOS status={os.status} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ),
           )}

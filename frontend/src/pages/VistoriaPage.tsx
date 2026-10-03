@@ -106,7 +106,7 @@ export function VistoriaPage({ veiculo, osId, onSalva, onVoltar }: Props) {
 
       <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
         <ClipboardCheck className="size-6" aria-hidden />
-        {leitura ? `Vistoria da OS nº ${osId}` : 'Nova vistoria'}
+        {leitura ? `Vistoria da OS nº ${osId}` : 'Abrir orçamento: vistoria de recepção'}
         <span className="font-mono text-slate-600">{veiculo.placa}</span>
       </h2>
 
@@ -157,7 +157,7 @@ export function VistoriaPage({ veiculo, osId, onSalva, onVoltar }: Props) {
         </p>
       </section>
 
-      <fieldset disabled={leitura} className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm">
+      <fieldset disabled={leitura} className="flex min-w-0 flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm">
         <legend className="sr-only">Checklist</legend>
         <h3 className="font-semibold text-slate-900">Checklist</h3>
         {def.itens.map((item) => (
@@ -213,7 +213,7 @@ export function VistoriaPage({ veiculo, osId, onSalva, onVoltar }: Props) {
       {erro && <p role="alert" className="text-sm text-red-700">{erro}</p>}
       {!leitura && (
         <Botao disabled={enviando} className="self-end">
-          Salvar vistoria e abrir OS
+          Salvar vistoria e abrir orçamento
         </Botao>
       )}
     </form>
