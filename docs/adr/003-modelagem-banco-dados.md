@@ -41,7 +41,7 @@ Estas entidades tem estrutura estavel, se relacionam entre si e sao consultadas 
 | `veiculos` | Veiculos de cada cliente | `id`, `cliente_id` (FK), `placa` (unica), `marca`, `modelo`, `ano`, `cor`, `chassi`, `numero_motor` |
 | `ordens_servico` | Orcamentos e OS no mesmo registro, diferenciados por `status` | `id`, `numero` (sequencial), `veiculo_id` (FK), `cliente_id` (FK), `status` (`orcamento`, `aprovada`, `em_execucao`, `concluida`, `entregue`, `cancelada`), `km_entrada`, `valor_total`, `pdf_path`, `created_by`, datas de abertura/conclusao |
 | `itens_os` | Servicos e pecas de cada OS | `id`, `ordem_servico_id` (FK), `servico_id` (FK opcional para o catalogo), `descricao`, `quantidade`, `valor_unitario` (`numeric(12,2)`) |
-| `garantias` | Termos de garantia emitidos | `id`, `ordem_servico_id` (FK), `prazo_dias`, `km_limite`, `condicoes`, `emitida_em`, `pdf_path` |
+| `garantias` | Termos de garantia emitidos, um por OS concluida ou entregue | `id`, `ordem_servico_id` (FK, unica), `prazo_meses`, `km_limite`, `condicoes`, `emitida_em`, `pdf_path` |
 | `vistorias` | Vistoria de recepcao de uma OS | `id`, `ordem_servico_id` (FK), `checklist_modelo_id` (FK), `nivel_combustivel`, `checklist` (**JSONB**), `avarias` (**JSONB**), `observacoes`, `realizada_por`, `realizada_em` |
 
 Justificativas:
@@ -60,7 +60,7 @@ Alem do nucleo do negocio, o sistema precisa de um conjunto **minimo** de tabela
 | Tabela | Responsabilidade | Principais campos |
 | --- | --- | --- |
 | `perfis` | Dados de aplicacao do usuario autenticado, 1:1 com `auth.users` | `id` (PK e FK para `auth.users.id`), `nome`, `papel` (`admin`, `atendente`, `mecanico`), `ativo` |
-| `oficina_config` | Dados da oficina usados no cabecalho dos PDFs e nas mensagens | `id` (linha unica), `razao_social`, `cnpj`, `endereco`, `telefone`, `logo_path`, `garantia_prazo_padrao_dias`, `validade_orcamento_dias` |
+| `oficina_config` | Dados da oficina usados no cabecalho dos documentos e nas mensagens, e padroes da garantia | `id` (linha unica), `razao_social`, `cnpj`, `endereco`, `telefone`, `garantia_prazo_padrao_meses`, `garantia_km_padrao`, `garantia_condicoes_padrao` |
 | `catalogo_servicos` | Servicos pre-cadastrados para o autocomplete | `id`, `descricao`, `valor_sugerido`, `ativo` |
 | `checklist_modelos` | Definicao versionada dos itens do checklist e dos tipos de avaria | `id`, `versao`, `definicao` (**JSONB**), `ativo`, `created_at` |
 | `auditoria` | Registro de alteracoes em OS, valores e status | `id`, `tabela`, `registro_id`, `acao`, `dados_anteriores` (JSONB), `usuario_id`, `created_at` |

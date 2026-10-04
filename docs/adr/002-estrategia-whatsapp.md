@@ -41,6 +41,8 @@ Regras:
 2. **Mensagem** codificada com `encodeURIComponent`, garantindo que acentos, quebras de linha (`%0A`), `&`, `#` e emojis nao quebrem a URL.
 3. **Link para o PDF da OS** incluido no corpo da mensagem. O PDF fica armazenado (ex.: Supabase Storage) e o link enviado deve ser acessivel pelo cliente sem login, preferencialmente uma URL assinada ou de token nao adivinhavel.
 
+   *Implementacao atual:* a mensagem leva saudacao, situacao da OS, itens com total e, quando houver, o prazo da garantia. Os documentos (comprovante de vistoria e certificado de garantia) sao paginas de impressao do proprio app, salvas em PDF pelo navegador; o link para o PDF armazenado fica para quando os arquivos forem gravados no Storage.
+
 Exemplo de implementacao:
 
 ```ts
