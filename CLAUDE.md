@@ -38,3 +38,31 @@ matukaj/
     └── supabase/
         ├── config.toml   # Configuração do projeto Supabase
         └── migrations/   # Scripts SQL do banco de dados
+```
+
+### ⚡ Comandos Úteis
+- **Supabase CLI**
+  - `supabase login` - Autenticar no Supabase CLI
+  - `supabase init` - Inicializar projeto Supabase
+  - `supabase start` - Iniciar ambiente local Supabase
+  - `supabase db push` - Aplicar migrações no banco de dados
+  - `supabase functions deploy <nome>` - Deploy de funções serverless
+- **Vite / React**
+  - `npm install` - Instalar dependências
+  - `npm run dev` - Iniciar servidor de desenvolvimento
+  - `npm run build` - Gerar build de produção
+
+### 📌 Padrões de Desenvolvimento
+- **Componentização:** Componentes React devem ser pequenos, reutilizáveis e seguir a convenção de nomenclatura PascalCase.
+- **Estilização:** Utilizar Tailwind CSS para consistência visual e responsividade. Evitar CSS inline.
+- **Hooks:** Criar hooks customizados para lógica de estado e efeitos colaterais, mantendo a separação de preocupações.
+- **Gerenciamento de Estado:** Preferir o uso de React Context ou Zustand para estados globais, evitando prop drilling excessivo.
+- **Acessibilidade:** Garantir que todos os elementos interativos sejam acessíveis via teclado e compatíveis com leitores de tela (WCAG 2.1).
+
+## 📝 Documentação e ADRs
+- **ADR (Architecture Decision Records):** Todas as decisões arquiteturais devem ser registradas em arquivos Markdown dentro de `docs/adr/`, seguindo o template padrão.
+- **Diagramas:** Diagramas de arquitetura devem ser criados em Mermaid e armazenados em `docs/architecture/`.
+
+### 📌 Contribuição e Pull Requests
+- commits devem seguir o padrão **Conventional Commits**.
+- não inserir menção ao claude ou chatgpt nos commits, PRs ou issues.
