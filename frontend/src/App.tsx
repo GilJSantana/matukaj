@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { StatusBadge } from './components/StatusBadge'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { CatalogoPage } from './pages/CatalogoPage'
+import { CertificadoGarantiaPage } from './pages/CertificadoGarantiaPage'
 import { ClientePage } from './pages/ClientePage'
+import { ComprovanteVistoriaPage } from './pages/ComprovanteVistoriaPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdemServicoPage } from './pages/OrdemServicoPage'
@@ -18,6 +20,7 @@ type Tela =
   | { nome: 'vistoria'; veiculo: Veiculo; osId: number | null }
   | { nome: 'os'; id: number }
   | { nome: 'catalogo' }
+  | { nome: 'documento'; tipo: 'comprovante' | 'garantia'; osId: number }
 
 function App() {
   const online = useOnlineStatus()
@@ -49,8 +52,8 @@ function App() {
   const abrirOS = (id: number) => setTela({ nome: 'os', id })
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-slate-50 print:bg-white">
+      <header className="border-b border-slate-200 bg-white print:hidden">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 p-4">
           <button onClick={() => setTela({ nome: 'inicio' })} className="text-xl font-bold text-slate-900">
             Matukaj
@@ -70,7 +73,7 @@ function App() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-3xl p-4">
+      <main className="mx-auto max-w-3xl p-4 print:max-w-none print:p-0">
         {tela.nome === 'inicio' && <HomePage onAbrirCliente={abrirCliente} />}
         {tela.nome === 'cliente' && (
           <ClientePage
@@ -92,11 +95,18 @@ function App() {
           />
         )}
         {tela.nome === 'catalogo' && <CatalogoPage onVoltar={() => setTela({ nome: 'inicio' })} />}
+        {tela.nome === 'documento' && tela.tipo === 'comprovante' && (
+          <ComprovanteVistoriaPage osId={tela.osId} onVoltar={() => abrirOS(tela.osId)} />
+        )}
+        {tela.nome === 'documento' && tela.tipo === 'garantia' && (
+          <CertificadoGarantiaPage osId={tela.osId} onVoltar={() => abrirOS(tela.osId)} />
+        )}
         {tela.nome === 'os' && (
           <OrdemServicoPage
             key={tela.id}
             id={tela.id}
             onVistoria={(veiculo) => setTela({ nome: 'vistoria', veiculo, osId: tela.id })}
+            onDocumento={(tipo) => setTela({ nome: 'documento', tipo, osId: tela.id })}
             onVoltar={abrirCliente}
           />
         )}
