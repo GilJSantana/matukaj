@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js'
 import { BookOpen, LogOut, Wifi, WifiOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Aniversariantes } from './components/Aniversariantes'
 import { StatusBadge } from './components/StatusBadge'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { CatalogoPage } from './pages/CatalogoPage'
@@ -60,6 +61,7 @@ function App() {
           </button>
           <div className="flex items-center gap-2">
             <StatusBadge icon={online ? Wifi : WifiOff} label={online ? 'Online' : 'Offline'} ok={online} />
+            <Aniversariantes onAbrir={abrirCliente} />
             <button
               onClick={() => setTela({ nome: 'catalogo' })}
               className="inline-flex items-center gap-1 rounded-lg p-2 text-sm font-medium text-slate-600 hover:text-slate-900"
@@ -74,7 +76,7 @@ function App() {
         </div>
       </header>
       <main className="mx-auto max-w-3xl p-4 print:max-w-none print:p-0">
-        {tela.nome === 'inicio' && <HomePage onAbrirCliente={abrirCliente} />}
+        {tela.nome === 'inicio' && <HomePage onAbrirCliente={abrirCliente} onAbrirOS={abrirOS} />}
         {tela.nome === 'cliente' && (
           <ClientePage
             key={tela.id ?? 'novo'}
