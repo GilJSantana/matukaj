@@ -1,7 +1,7 @@
 import { ArrowLeft, Ban, ClipboardCheck, Trash2 } from 'lucide-react'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { Botao } from '../components/Botao'
-import { Campo } from '../components/Campo'
+import { ItemOSForm, type NovoItem } from '../components/ItemOSForm'
 import { StatusOS } from '../components/StatusOS'
 import { PROXIMO_STATUS, STATUS_OS, reais, totalItens, type StatusOS as Status } from '../services/os'
 import { mensagemErro, supabase, type Veiculo } from '../services/supabase'
@@ -56,24 +56,19 @@ export function OrdemServicoPage({ id, onVistoria, onVoltar }: Props) {
     if (confirm(`Cancelar ${orcamento ? 'o orçamento' : 'a OS'} nº ${id}?`)) mudarStatus('cancelada')
   }
 
-  async function incluirItem(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const formulario = e.currentTarget
-    const form = new FormData(formulario)
+  async function incluirItem(item: NovoItem) {
     const { data, error } = await supabase!
       .from('itens_os')
-      .insert({
-        ordem_servico_id: id,
-        descricao: String(form.get('descricao')).trim(),
-        quantidade: Number(form.get('quantidade')),
-        valor_unitario: Number(form.get('valor_unitario')),
-      })
+      .insert({ ...item, ordem_servico_id: id })
       .select()
       .single()
-    if (error) return setErro(mensagemErro(error))
+    if (error) {
+      setErro(mensagemErro(error))
+      return false
+    }
     setErro('')
     setOs((atual) => atual && { ...atual, itens_os: [...atual.itens_os, data] })
-    formulario.reset()
+    return true
   }
 
   async function removerItem(itemId: number) {
@@ -163,14 +158,7 @@ export function OrdemServicoPage({ id, onVistoria, onVoltar }: Props) {
         </ul>
         <p className="text-right font-bold text-slate-900">Total: {reais(totalItens(os.itens_os))}</p>
 
-        {orcamento && (
-          <form onSubmit={incluirItem} className="grid gap-2 border-t border-slate-100 pt-3 sm:grid-cols-[1fr_6rem_8rem_auto] sm:items-end">
-            <Campo label="Descrição" name="descricao" required />
-            <Campo label="Qtd." name="quantidade" type="number" min="0.01" step="0.01" defaultValue="1" required />
-            <Campo label="Valor unit." name="valor_unitario" type="number" min="0" step="0.01" required />
-            <Botao>Incluir</Botao>
-          </form>
-        )}
+        {orcamento && <ItemOSForm onIncluir={incluirItem} />}
       </section>
 
       {erro && <p role="alert" className="text-sm text-red-700">{erro}</p>}

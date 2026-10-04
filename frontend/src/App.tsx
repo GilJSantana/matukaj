@@ -1,8 +1,9 @@
 import type { Session } from '@supabase/supabase-js'
-import { LogOut, Wifi, WifiOff } from 'lucide-react'
+import { BookOpen, LogOut, Wifi, WifiOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { StatusBadge } from './components/StatusBadge'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
+import { CatalogoPage } from './pages/CatalogoPage'
 import { ClientePage } from './pages/ClientePage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
@@ -16,6 +17,7 @@ type Tela =
   | { nome: 'cliente'; id: number | null }
   | { nome: 'vistoria'; veiculo: Veiculo; osId: number | null }
   | { nome: 'os'; id: number }
+  | { nome: 'catalogo' }
 
 function App() {
   const online = useOnlineStatus()
@@ -55,6 +57,13 @@ function App() {
           </button>
           <div className="flex items-center gap-2">
             <StatusBadge icon={online ? Wifi : WifiOff} label={online ? 'Online' : 'Offline'} ok={online} />
+            <button
+              onClick={() => setTela({ nome: 'catalogo' })}
+              className="inline-flex items-center gap-1 rounded-lg p-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              <BookOpen className="size-5" aria-hidden />
+              <span className="max-sm:sr-only">Catálogo</span>
+            </button>
             <button onClick={() => supabase!.auth.signOut()} className="p-2 text-slate-500 hover:text-slate-900" aria-label="Sair">
               <LogOut className="size-5" aria-hidden />
             </button>
@@ -82,6 +91,7 @@ function App() {
             onVoltar={() => (tela.osId ? abrirOS(tela.osId) : abrirCliente(tela.veiculo.cliente_id))}
           />
         )}
+        {tela.nome === 'catalogo' && <CatalogoPage onVoltar={() => setTela({ nome: 'inicio' })} />}
         {tela.nome === 'os' && (
           <OrdemServicoPage
             key={tela.id}
