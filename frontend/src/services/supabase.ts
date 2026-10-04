@@ -14,6 +14,8 @@ export const supabase: SupabaseClient<Database> | null = isSupabaseConfigured
 export type Cliente = Tables<'clientes'>
 export type Veiculo = Tables<'veiculos'>
 export type Servico = Tables<'catalogo_servicos'>
+export type Oficina = Tables<'oficina_config'>
+export type Garantia = Tables<'garantias'>
 
 // mensagem amigavel para os erros esperados de cadastro
 export function mensagemErro(error: { code?: string; message: string }) {

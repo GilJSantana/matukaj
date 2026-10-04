@@ -1,15 +1,17 @@
-import { ArrowLeft, Ban, ClipboardCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, Ban, ClipboardCheck, MessageCircle, Printer, ShieldCheck, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Botao } from '../components/Botao'
+import { GarantiaForm } from '../components/GarantiaForm'
 import { ItemOSForm, type NovoItem } from '../components/ItemOSForm'
 import { StatusOS } from '../components/StatusOS'
 import { PROXIMO_STATUS, STATUS_OS, reais, totalItens, type StatusOS as Status } from '../services/os'
-import { mensagemErro, supabase, type Veiculo } from '../services/supabase'
+import { mensagemErro, supabase, type Oficina, type Veiculo } from '../services/supabase'
+import { linkWhatsApp } from '../services/whatsapp'
 
 const consultar = (id: number) =>
   supabase!
     .from('ordens_servico')
-    .select('*, clientes(nome, telefone), veiculos(*), itens_os(*), vistorias(id)')
+    .select('*, clientes(nome, telefone), veiculos(*), itens_os(*), vistorias(id), garantias(*)')
     .eq('id', id)
     .order('id', { referencedTable: 'itens_os' })
     .single()
@@ -17,19 +19,48 @@ type OS = NonNullable<Awaited<ReturnType<typeof consultar>>['data']>
 
 const ETAPAS: Status[] = ['orcamento', 'aprovada', 'em_execucao', 'concluida', 'entregue']
 
+// saudacao + situacao + resumo; curta para caber na URL do wa.me (ADR 002)
+function mensagemWhatsApp(os: OS, oficina: string) {
+  const veiculo = [os.veiculos.placa, os.veiculos.modelo].filter(Boolean).join(' ')
+  const situacao: Record<Status, string> = {
+    orcamento: `Segue o orçamento nº ${os.id} do seu veículo ${veiculo}:`,
+    aprovada: `Sua OS nº ${os.id} (${veiculo}) foi aprovada e já está na fila de execução.`,
+    em_execucao: `Os serviços da OS nº ${os.id} (${veiculo}) estão em execução.`,
+    concluida: `Os serviços da OS nº ${os.id} (${veiculo}) foram concluídos. Seu veículo está pronto para retirada!`,
+    entregue: `Obrigado pela confiança! Segue o resumo da OS nº ${os.id} (${veiculo}):`,
+    cancelada: `A OS nº ${os.id} (${veiculo}) foi cancelada.`,
+  }
+  const linhas = [`Olá, ${os.clientes.nome.split(' ')[0]}! Aqui é da ${oficina}.`, situacao[os.status]]
+  if (os.itens_os.length > 0 && os.status !== 'cancelada') {
+    linhas.push('', ...os.itens_os.map((i) => `• ${i.descricao}: ${reais(i.quantidade * i.valor_unitario)}`))
+    linhas.push(`Total: ${reais(totalItens(os.itens_os))}`)
+  }
+  if (os.garantias) {
+    const km = os.garantias.km_limite ? ` ou ${os.garantias.km_limite.toLocaleString('pt-BR')} km` : ''
+    linhas.push('', `Garantia: ${os.garantias.prazo_meses} meses${km}, o que ocorrer primeiro.`)
+  }
+  return linhas.join('\n')
+}
+
+const BOTAO_SECUNDARIO =
+  'inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50'
+
 type Props = {
   id: number
   onVistoria: (veiculo: Veiculo) => void
+  onDocumento: (tipo: 'comprovante' | 'garantia') => void
   onVoltar: (clienteId: number) => void
 }
 
-export function OrdemServicoPage({ id, onVistoria, onVoltar }: Props) {
+export function OrdemServicoPage({ id, onVistoria, onDocumento, onVoltar }: Props) {
   const [os, setOs] = useState<OS>()
   const [erro, setErro] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [oficina, setOficina] = useState<Oficina>()
 
   useEffect(() => {
     consultar(id).then(({ data }) => data && setOs(data))
+    supabase!.from('oficina_config').select().single().then(({ data }) => data && setOficina(data))
   }, [id])
 
   if (!os) return null
@@ -159,6 +190,37 @@ export function OrdemServicoPage({ id, onVistoria, onVoltar }: Props) {
         <p className="text-right font-bold text-slate-900">Total: {reais(totalItens(os.itens_os))}</p>
 
         {orcamento && <ItemOSForm onIncluir={incluirItem} />}
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm">
+        <h3 className="font-semibold text-slate-900">Documentos e envio</h3>
+        <div className="flex flex-wrap gap-2">
+          {os.vistorias && (
+            <button onClick={() => onDocumento('comprovante')} className={BOTAO_SECUNDARIO}>
+              <Printer className="size-4" aria-hidden /> Comprovante de vistoria
+            </button>
+          )}
+          {os.garantias && (
+            <button onClick={() => onDocumento('garantia')} className={BOTAO_SECUNDARIO}>
+              <ShieldCheck className="size-4" aria-hidden /> Certificado de garantia
+            </button>
+          )}
+          {os.clientes.telefone ? (
+            <a
+              href={linkWhatsApp(os.clientes.telefone, mensagemWhatsApp(os, oficina?.razao_social ?? 'oficina'))}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              <MessageCircle className="size-4" aria-hidden /> Enviar no WhatsApp
+            </a>
+          ) : (
+            <span className="self-center text-sm text-slate-500">Cliente sem telefone cadastrado para WhatsApp.</span>
+          )}
+        </div>
+        {(os.status === 'concluida' || os.status === 'entregue') && !os.garantias && oficina && (
+          <GarantiaForm osId={os.id} oficina={oficina} onEmitida={(garantia) => setOs({ ...os, garantias: garantia })} />
+        )}
       </section>
 
       {erro && <p role="alert" className="text-sm text-red-700">{erro}</p>}

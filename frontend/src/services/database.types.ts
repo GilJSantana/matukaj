@@ -77,19 +77,19 @@ export type Database = {
                   ]
                 },"garantias": {
                   Row: {
-                    "condicoes": string | null,"emitida_em": string,"id": number,"km_limite": number | null,"ordem_servico_id": number,"pdf_path": string | null,"prazo_dias": number
+                    "condicoes": string | null,"emitida_em": string,"id": number,"km_limite": number | null,"ordem_servico_id": number,"pdf_path": string | null,"prazo_meses": number
                   }
                   Insert: {
-                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id": number,"pdf_path"?: string | null,"prazo_dias": number
+                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id": number,"pdf_path"?: string | null,"prazo_meses": number
                   }
                   Update: {
-                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id"?: number,"pdf_path"?: string | null,"prazo_dias"?: number
+                    "condicoes"?: string | null,"emitida_em"?: string,"id"?: never,"km_limite"?: number | null,"ordem_servico_id"?: number,"pdf_path"?: string | null,"prazo_meses"?: number
                   }
                   Relationships: [
                     {
       foreignKeyName: "garantias_ordem_servico_id_fkey"
       columns: ["ordem_servico_id"]
-isOneToOne: false
+isOneToOne: true
       referencedRelation: "ordens_servico"
       referencedColumns: ["id"]
     }
@@ -118,6 +118,19 @@ isOneToOne: false
       referencedRelation: "catalogo_servicos"
       referencedColumns: ["id"]
     }
+                  ]
+                },"oficina_config": {
+                  Row: {
+                    "cnpj": string | null,"endereco": string | null,"garantia_condicoes_padrao": string | null,"garantia_km_padrao": number | null,"garantia_prazo_padrao_meses": number,"id": boolean,"razao_social": string,"telefone": string | null
+                  }
+                  Insert: {
+                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"razao_social": string,"telefone"?: string | null
+                  }
+                  Update: {
+                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"razao_social"?: string,"telefone"?: string | null
+                  }
+                  Relationships: [
+                    
                   ]
                 },"ordens_servico": {
                   Row: {

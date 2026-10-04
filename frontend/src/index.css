@@ -1,1 +1,14 @@
 @import 'tailwindcss';
+
+/* documentos impressos (comprovante de vistoria, certificado de garantia) */
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+@media print {
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

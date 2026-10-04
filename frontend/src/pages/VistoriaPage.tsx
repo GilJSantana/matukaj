@@ -4,11 +4,8 @@ import { Botao } from '../components/Botao'
 import { Campo } from '../components/Campo'
 import { DiagramaVeiculo, type Avaria, type Vista } from '../components/DiagramaVeiculo'
 import { mensagemErro, supabase } from '../services/supabase'
+import { COMBUSTIVEL, VISTAS, type ModeloChecklist } from '../services/vistoria'
 
-type ModeloChecklist = {
-  itens: { chave: string; rotulo: string }[]
-  tipos_avaria: { chave: string; rotulo: string; simbolo: string }[]
-}
 type Modelo = { id: number; definicao: ModeloChecklist }
 
 type Props = {
@@ -18,13 +15,6 @@ type Props = {
   onSalva: (osId: number) => void
   onVoltar: () => void
 }
-
-const VISTAS: { vista: Vista; rotulo: string }[] = [
-  { vista: 'teto', rotulo: 'Superior' },
-  { vista: 'lateral_esquerda', rotulo: 'Lateral esquerda' },
-  { vista: 'lateral_direita', rotulo: 'Lateral direita' },
-]
-const COMBUSTIVEL = ['Vazio', '1/4', '1/2', '3/4', 'Cheio']
 
 export function VistoriaPage({ veiculo, osId, onSalva, onVoltar }: Props) {
   const leitura = osId !== null
