@@ -241,6 +241,19 @@ isOneToOne: true
         isOneToOne: false
         isSetofReturn: true
       } },
+"buscar_servicos":
+{ Args: { "termo": string }; Returns: {
+              "ativo": boolean,
+"descricao": string,
+"id": number,
+"valor_sugerido": number
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "catalogo_servicos"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "expurgar_auditoria":
 { Args: { "retencao"?: string }; Returns: number
                            },
