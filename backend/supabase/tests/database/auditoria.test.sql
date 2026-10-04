@@ -16,7 +16,7 @@ insert into public.veiculos (cliente_id, placa) select id, 'ABC1D23' from public
 insert into public.ordens_servico (veiculo_id, cliente_id) select id, cliente_id from public.veiculos;
 insert into public.itens_os (ordem_servico_id, descricao, valor_unitario)
   select id, 'Retifica', 100 from public.ordens_servico;
-insert into public.garantias (ordem_servico_id, prazo_dias) select id, 90 from public.ordens_servico;
+insert into public.garantias (ordem_servico_id, prazo_meses) select id, 3 from public.ordens_servico;
 
 select is(
   (select count(*)::int from public.auditoria where acao = 'INSERT'), 3,
@@ -30,11 +30,11 @@ select is(
   100::numeric, 'UPDATE de item guarda o valor anterior'
 );
 
-update public.garantias set prazo_dias = 180;
+update public.garantias set prazo_meses = 6;
 select is(
-  (select (dados_anteriores ->> 'prazo_dias')::int from public.auditoria
+  (select (dados_anteriores ->> 'prazo_meses')::int from public.auditoria
    where tabela = 'garantias' and acao = 'UPDATE'),
-  90, 'UPDATE de garantia guarda o prazo anterior'
+  3, 'UPDATE de garantia guarda o prazo anterior'
 );
 
 delete from public.itens_os;
