@@ -19,3 +19,13 @@ values (
 
 insert into public.perfis (id, nome, papel)
 values ('00000000-0000-0000-0000-000000000001', 'Admin', 'admin');
+
+-- Catalogo de exemplo
+insert into public.catalogo_servicos (descricao, valor_sugerido) values
+  ('Retífica de bloco', 1800.00),
+  ('Retífica de cabeçote', 1500.00),
+  ('Retífica de virabrequim', 950.00),
+  ('Troca de óleo', 180.00),
+  ('Alinhamento', 120.00),
+  ('Balanceamento', 100.00),
+  ('Junta do cabeçote', 85.50);
