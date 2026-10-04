@@ -134,13 +134,13 @@ isOneToOne: false
                   ]
                 },"ordens_servico": {
                   Row: {
-                    "aberta_em": string,"cliente_id": number,"concluida_em": string | null,"created_by": string | null,"id": number,"km_entrada": number | null,"pdf_path": string | null,"status": Database["public"]['Enums']["os_status"],"veiculo_id": number
+                    "aberta_em": string,"cliente_id": number,"concluida_em": string | null,"created_by": string | null,"id": number,"km_entrada": number | null,"pdf_path": string | null,"status": Database["public"]['Enums']["os_status"],"updated_at": string,"veiculo_id": number
                   }
                   Insert: {
-                    "aberta_em"?: string,"cliente_id": number,"concluida_em"?: string | null,"created_by"?: string | null,"id"?: never,"km_entrada"?: number | null,"pdf_path"?: string | null,"status"?: Database["public"]['Enums']["os_status"],"veiculo_id": number
+                    "aberta_em"?: string,"cliente_id": number,"concluida_em"?: string | null,"created_by"?: string | null,"id"?: never,"km_entrada"?: number | null,"pdf_path"?: string | null,"status"?: Database["public"]['Enums']["os_status"],"updated_at"?: string,"veiculo_id": number
                   }
                   Update: {
-                    "aberta_em"?: string,"cliente_id"?: number,"concluida_em"?: string | null,"created_by"?: string | null,"id"?: never,"km_entrada"?: number | null,"pdf_path"?: string | null,"status"?: Database["public"]['Enums']["os_status"],"veiculo_id"?: number
+                    "aberta_em"?: string,"cliente_id"?: number,"concluida_em"?: string | null,"created_by"?: string | null,"id"?: never,"km_entrada"?: number | null,"pdf_path"?: string | null,"status"?: Database["public"]['Enums']["os_status"],"updated_at"?: string,"veiculo_id"?: number
                   }
                   Relationships: [
                     {
