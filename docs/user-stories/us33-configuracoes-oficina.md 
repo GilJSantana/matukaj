@@ -1,0 +1,79 @@
+# US-33: Configurações da Oficina, Dados Cadastrais e Logotipo
+
+## Contexto & Objetivo
+Como **Administrador da Oficina**,
+Quero **gerenciar os dados cadastrais da empresa e o logotipo em uma tela de configurações**,
+Para que **informações como razão social, CNPJ, contato, prazos padrão e identidade visual não fiquem estáticas no código-fonte e sejam refletidas automaticamente nos PDFs de Orçamento, OS, Certificado de Garantia e mensagens de WhatsApp**.
+
+---
+
+## Critérios de Aceite (BDD)
+
+### Cenário 1: Edição e persistência dos dados cadastrais por Administrador
+- **Dado** que estou autenticado com o perfil `admin` na tela de Configurações (`/configuracoes`),
+- **Quando** altero os dados (Razão Social, CNPJ, Endereço, Telefone, Prazo de Garantia ou Validade do Orçamento) e clico em "Salvar",
+- **Então** os dados devem ser salvos com sucesso na tabela `oficina_config`,
+- **E** uma mensagem de sucesso (toast) deve ser exibida na tela.
+
+### Cenário 2: Upload e visualização do logotipo da oficina
+- **Dado** que estou na tela de Configurações como `admin`,
+- **Quando** envio uma imagem (PNG/JPG) no componente de upload de logo (via clique ou arrastar e soltar),
+- **Então** o arquivo deve ser armazenado no bucket `documentos-os` do Supabase Storage no caminho `logos/logo_oficina.{ext}`,
+- **E** a coluna `logo_path` da tabela `oficina_config` deve ser atualizada,
+- **E** o preview da nova imagem deve ser exibido imediatamente na tela.
+
+### Cenário 3: Bloqueio de acesso para perfis não-administradores (Frontend)
+- **Dado** que estou autenticado com perfil `mecanico` ou `atendente`,
+- **Quando** tento acessar a página de Configurações,
+- **Então** a interface deve exibir um aviso de bloqueio/permissão insuficiente e impedir a edição do formulário.
+
+### Cenário 4: Garantia de segurança via RLS no banco de dados (Backend)
+- **Dado** uma requisição direta de `UPDATE` na tabela `oficina_config` enviada por um usuário não-admin,
+- **Quando** a RLS (Row Level Security) avaliar aoperação,
+- **Então** o Supabase deve rejeitar a transação retornando erro de permissão (`42501` / `permission denied`).
+
+---
+
+## Requisitos Técnicos & Contratos
+
+### 1. Banco de Dados & Storage (Supabase)
+- **Migration (`supabase/migrations/20260104_oficina_config.sql`):**
+  - Tabela `oficina_config` (registro único, `singleton` pattern):
+    - `id` (`uuid` ou `bigint`, PK)
+    - `razao_social` (`text`, NOT NULL)
+    - `cnpj` (`text`, NOT NULL)
+    - `endereco` (`text`)
+    - `telefone` (`text`)
+    - `logo_path` (`text`)
+    - `garantia_prazo_padrao_dias` (`integer`, DEFAULT `90`)
+    - `validade_orcamento_dias` (`integer`, DEFAULT `15`)
+  - Garantir inserção de registro inicial padrão se a tabela estiver vazia (`INSERT INTO ... ON CONFLICT DO NOTHING`).
+- **Políticas RLS (`oficina_config`):**
+  - `SELECT`: Permitida para todos os usuários autenticados (`admin`, `atendente`, `mecanico`).
+  - `UPDATE`: Permissão restrita estritamente ao papel `admin`.
+
+### 2. Camada de Serviços (`frontend/src/services/configService.ts`)
+- `getOficinaConfig()`: Busca e retorna o registro único de configurações.
+- `updateOficinaConfig(payload)`: Atualiza os dados cadastrais e prazos.
+- `uploadLogoOficina(file)`: Realiza o upload do arquivo para `documentos-os/logos/logo_oficina.{ext}` e atualiza `logo_path` no banco.
+
+### 3. Frontend (`frontend/src/pages/ConfiguracoesPage.tsx`)
+- Form com controle de estado para:
+  - Textos: Razão Social, CNPJ (máscara `00.000.000/0000-00`), Endereço, Telefone (máscara WhatsApp `(00) 00000-0000`).
+  - Numéricos: Prazo de Garantia (dias) e Validade do Orçamento (dias).
+- Componente de Upload de Logo com Drag & Drop (suporte PNG/JPG).
+- Validação de perfil `admin` para exibição/edição da tela.
+
+---
+
+## Regras de Negócio & Edge Cases
+1. **Linha Única (Singleton):** A tabela `oficina_config` deve sempre conter exatamente um registro. Consultas e updates devem operar considerando essa premissa.
+2. **Reflexo em Documentos:** A leitura desses dados deve ser feita dinamicamente durante a renderização de PDFs (Orçamento, OS, Certificado de Garantia) e mensagens formatadas para WhatsApp.
+3. **Substituição de Logo:** Ao enviar um novo logotipo, o arquivo anterior pode ser sobrescrito ou atualizado mantendo o ponteiro `logo_path` atualizado.
+
+---
+
+## Referências & ADRs Relacionadas
+- ADRs do projeto referente a RLS e Supabase Storage.
+
+```
