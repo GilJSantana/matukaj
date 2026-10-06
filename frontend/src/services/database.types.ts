@@ -121,13 +121,13 @@ isOneToOne: false
                   ]
                 },"oficina_config": {
                   Row: {
-                    "cnpj": string | null,"endereco": string | null,"garantia_condicoes_padrao": string | null,"garantia_km_padrao": number | null,"garantia_prazo_padrao_meses": number,"id": boolean,"razao_social": string,"telefone": string | null
+                    "cnpj": string | null,"endereco": string | null,"garantia_condicoes_padrao": string | null,"garantia_km_padrao": number | null,"garantia_prazo_padrao_meses": number,"id": boolean,"logo_path": string | null,"razao_social": string,"telefone": string | null,"validade_orcamento_dias": number
                   }
                   Insert: {
-                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"razao_social": string,"telefone"?: string | null
+                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"logo_path"?: string | null,"razao_social": string,"telefone"?: string | null,"validade_orcamento_dias"?: number
                   }
                   Update: {
-                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"razao_social"?: string,"telefone"?: string | null
+                    "cnpj"?: string | null,"endereco"?: string | null,"garantia_condicoes_padrao"?: string | null,"garantia_km_padrao"?: number | null,"garantia_prazo_padrao_meses"?: number,"id"?: boolean,"logo_path"?: string | null,"razao_social"?: string,"telefone"?: string | null,"validade_orcamento_dias"?: number
                   }
                   Relationships: [
                     

@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
-import { BookOpen, LogOut, Wifi, WifiOff } from 'lucide-react'
+import { BookOpen, LogOut, Settings, Wifi, WifiOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Aniversariantes } from './components/Aniversariantes'
 import { StatusBadge } from './components/StatusBadge'
@@ -8,6 +8,7 @@ import { CatalogoPage } from './pages/CatalogoPage'
 import { CertificadoGarantiaPage } from './pages/CertificadoGarantiaPage'
 import { ClientePage } from './pages/ClientePage'
 import { ComprovanteVistoriaPage } from './pages/ComprovanteVistoriaPage'
+import { ConfiguracoesPage } from './pages/ConfiguracoesPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdemServicoPage } from './pages/OrdemServicoPage'
@@ -21,6 +22,7 @@ type Tela =
   | { nome: 'vistoria'; veiculo: Veiculo; osId: number | null }
   | { nome: 'os'; id: number }
   | { nome: 'catalogo' }
+  | { nome: 'configuracoes' }
   | { nome: 'documento'; tipo: 'comprovante' | 'garantia'; osId: number }
 
 function App() {
@@ -69,6 +71,13 @@ function App() {
               <BookOpen className="size-5" aria-hidden />
               <span className="max-sm:sr-only">Catálogo</span>
             </button>
+            <button
+              onClick={() => setTela({ nome: 'configuracoes' })}
+              className="p-2 text-slate-500 hover:text-slate-900"
+              aria-label="Configurações"
+            >
+              <Settings className="size-5" aria-hidden />
+            </button>
             <button onClick={() => supabase!.auth.signOut()} className="p-2 text-slate-500 hover:text-slate-900" aria-label="Sair">
               <LogOut className="size-5" aria-hidden />
             </button>
@@ -97,6 +106,7 @@ function App() {
           />
         )}
         {tela.nome === 'catalogo' && <CatalogoPage onVoltar={() => setTela({ nome: 'inicio' })} />}
+        {tela.nome === 'configuracoes' && <ConfiguracoesPage onVoltar={() => setTela({ nome: 'inicio' })} />}
         {tela.nome === 'documento' && tela.tipo === 'comprovante' && (
           <ComprovanteVistoriaPage osId={tela.osId} onVoltar={() => abrirOS(tela.osId)} />
         )}
