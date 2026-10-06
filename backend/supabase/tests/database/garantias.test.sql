@@ -38,10 +38,9 @@ select throws_ok($$
   where v.placa = 'GAR1A00' and o.status = 'concluida'
 $$, '23505', null, 'uma garantia por OS');
 
--- RLS de update filtra as linhas: nao da erro, apenas nao altera
-update public.oficina_config set razao_social = 'Outra';
-select results_eq(
-  'select razao_social from public.oficina_config', array['Retífica de Motores Matukaj'],
+-- with check da policy de update rejeita com 42501 (US-33)
+select throws_ok(
+  'update public.oficina_config set razao_social = ''Outra''', '42501', null,
   'nao-admin nao altera a oficina'
 );
 
