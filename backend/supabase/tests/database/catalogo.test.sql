@@ -6,7 +6,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000f2', 'atendente@catalogo');
 insert into public.perfis (id, nome, papel) values
   ('00000000-0000-0000-0000-0000000000f1', 'Admin', 'admin'),
-  ('00000000-0000-0000-0000-0000000000f2', 'Atendente', 'atendente');
+  ('00000000-0000-0000-0000-0000000000f2', 'Atendente', 'atendente')
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 
 -- isola do catalogo de exemplo do seed
 delete from public.catalogo_servicos;

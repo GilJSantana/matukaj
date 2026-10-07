@@ -6,7 +6,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000f2', 'mecanico@oficina');
 insert into public.perfis (id, nome, papel) values
   ('00000000-0000-0000-0000-0000000000f1', 'Admin', 'admin'),
-  ('00000000-0000-0000-0000-0000000000f2', 'Mecanico', 'mecanico');
+  ('00000000-0000-0000-0000-0000000000f2', 'Mecanico', 'mecanico')
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 
 select throws_ok(
   'insert into public.oficina_config (razao_social) values (''Outra'')', '23505', null,
@@ -22,7 +23,7 @@ select throws_ok(
   'mecanico nao edita dados da oficina'
 );
 select throws_ok(
-  $$insert into storage.objects (bucket_id, name) values ('documentos-os', 'logos/logo_oficina.png')$$,
+  $$insert into storage.objects (bucket_id, name) values ('documentos-os', 'logos/teste_pgtap.png')$$,
   '42501', null, 'mecanico nao envia logo'
 );
 
@@ -39,7 +40,7 @@ select throws_ok(
   'validade precisa ser positiva'
 );
 select lives_ok(
-  $$insert into storage.objects (bucket_id, name) values ('documentos-os', 'logos/logo_oficina.png')$$,
+  $$insert into storage.objects (bucket_id, name) values ('documentos-os', 'logos/teste_pgtap.png')$$,
   'admin envia logo'
 );
 

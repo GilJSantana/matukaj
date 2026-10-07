@@ -6,7 +6,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000c2', 'inativo@teste');
 insert into public.perfis (id, nome, papel, ativo) values
   ('00000000-0000-0000-0000-0000000000c1', 'Ativo', 'atendente', true),
-  ('00000000-0000-0000-0000-0000000000c2', 'Inativo', 'atendente', false);
+  ('00000000-0000-0000-0000-0000000000c2', 'Inativo', 'atendente', false)
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 
 insert into public.clientes (nome, cpf_cnpj, data_nascimento) values
   ('Maria Souza', '12345678901', (now() at time zone 'America/Sao_Paulo')::date - interval '30 years'),

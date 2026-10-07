@@ -4,7 +4,8 @@ select plan(6);
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a1', 'atendente@garantia');
 insert into public.perfis (id, nome, papel) values
-  ('00000000-0000-0000-0000-0000000000a1', 'Atendente', 'atendente');
+  ('00000000-0000-0000-0000-0000000000a1', 'Atendente', 'atendente')
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 insert into public.clientes (nome) values ('Cliente Garantia');
 insert into public.veiculos (cliente_id, placa) select id, 'GAR1A00' from public.clientes where nome = 'Cliente Garantia';
 -- uma OS em orcamento e outra ja concluida
