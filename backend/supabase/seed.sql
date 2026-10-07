@@ -17,8 +17,8 @@ values (
   'email', now(), now()
 );
 
-insert into public.perfis (id, nome, papel)
-values ('00000000-0000-0000-0000-000000000001', 'Admin', 'admin');
+-- o trigger criar_perfil_usuario ja criou o perfil como mecanico
+update public.perfis set nome = 'Admin', papel = 'admin' where id = '00000000-0000-0000-0000-000000000001';
 
 -- Catalogo de exemplo
 insert into public.catalogo_servicos (descricao, valor_sugerido) values

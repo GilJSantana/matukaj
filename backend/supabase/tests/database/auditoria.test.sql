@@ -6,7 +6,8 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000b', 'atendente@teste');
 insert into public.perfis (id, nome, papel) values
   ('00000000-0000-0000-0000-00000000000a', 'Admin', 'admin'),
-  ('00000000-0000-0000-0000-00000000000b', 'Atendente', 'atendente');
+  ('00000000-0000-0000-0000-00000000000b', 'Atendente', 'atendente')
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 
 -- simula requisicao do atendente: auth.uid() le o sub do JWT
 set local request.jwt.claims = '{"sub": "00000000-0000-0000-0000-00000000000b", "role": "authenticated"}';

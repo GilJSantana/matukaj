@@ -2,7 +2,8 @@ begin;
 select plan(11);
 
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000e1', 'atendente@teste');
-insert into public.perfis (id, nome, papel) values ('00000000-0000-0000-0000-0000000000e1', 'Atendente', 'atendente');
+insert into public.perfis (id, nome, papel) values ('00000000-0000-0000-0000-0000000000e1', 'Atendente', 'atendente')
+on conflict (id) do update set nome = excluded.nome, papel = excluded.papel, ativo = excluded.ativo;
 insert into public.clientes (nome) values ('Cliente Fluxo');
 insert into public.veiculos (cliente_id, placa) select id, 'FLU1X00' from public.clientes where nome = 'Cliente Fluxo';
 insert into public.ordens_servico (veiculo_id, cliente_id)
