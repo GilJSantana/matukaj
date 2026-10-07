@@ -270,8 +270,16 @@ isOneToOne: true
 "expurgar_auditoria":
 { Args: { "retencao"?: string }; Returns: number
                            },
+"get_meu_papel":
+{ Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["papel_usuario"]
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"listar_usuarios":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "ativo": boolean,"email": string,"id": string,"nome": string,"papel": Database["public"]['Enums']["papel_usuario"]
+            }[]
                            },
 "registrar_vistoria":
 { Args: { "avarias": Json,"checklist": Json,"checklist_modelo_id": number,"km_entrada"?: number,"nivel_combustivel"?: number,"observacoes"?: string,"veiculo_id": number }; Returns: number
