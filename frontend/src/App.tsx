@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
-import { BookOpen, LogOut, Settings, Wifi, WifiOff } from 'lucide-react'
+import { BookOpen, LogOut, Settings, Users, Wifi, WifiOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Aniversariantes } from './components/Aniversariantes'
 import { StatusBadge } from './components/StatusBadge'
@@ -12,8 +12,10 @@ import { ConfiguracoesPage } from './pages/ConfiguracoesPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdemServicoPage } from './pages/OrdemServicoPage'
+import { UsuariosPage } from './pages/UsuariosPage'
 import { VistoriaPage } from './pages/VistoriaPage'
 import { supabase, type Veiculo } from './services/supabase'
+import type { Papel } from './services/userService'
 
 // ponytail: navegacao por estado, sem URL; adotar um router quando houver mais telas
 type Tela =
@@ -23,6 +25,7 @@ type Tela =
   | { nome: 'os'; id: number }
   | { nome: 'catalogo' }
   | { nome: 'configuracoes' }
+  | { nome: 'usuarios' }
   | { nome: 'documento'; tipo: 'comprovante' | 'garantia'; osId: number }
 
 function App() {
@@ -30,6 +33,8 @@ function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [carregando, setCarregando] = useState(Boolean(supabase))
   const [tela, setTela] = useState<Tela>({ nome: 'inicio' })
+  // undefined = carregando; null = inativo ou sem perfil
+  const [papel, setPapel] = useState<Papel | null>()
 
   useEffect(() => {
     if (!supabase) return
@@ -41,6 +46,11 @@ function App() {
     return () => data.subscription.unsubscribe()
   }, [])
 
+  const userId = session?.user.id
+  useEffect(() => {
+    if (userId) supabase!.rpc('get_meu_papel').then(({ data }) => setPapel(data))
+  }, [userId])
+
   if (!supabase) {
     return (
       <main className="flex min-h-screen items-center justify-center p-4 text-slate-600">
@@ -50,6 +60,18 @@ function App() {
   }
   if (carregando) return null
   if (!session) return <LoginPage />
+  if (papel === undefined) return null
+  // RLS ja bloqueia os dados; a tela so explica o motivo
+  if (papel === null) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 text-center text-slate-600">
+        <p role="alert">Seu acesso está desativado. Fale com o administrador da oficina.</p>
+        <button onClick={() => supabase!.auth.signOut()} className="text-sm font-medium text-slate-900 hover:underline">
+          Sair
+        </button>
+      </main>
+    )
+  }
 
   const abrirCliente = (id: number | null) => setTela({ nome: 'cliente', id })
   const abrirOS = (id: number) => setTela({ nome: 'os', id })
@@ -71,6 +93,11 @@ function App() {
               <BookOpen className="size-5" aria-hidden />
               <span className="max-sm:sr-only">Catálogo</span>
             </button>
+            {papel === 'admin' && (
+              <button onClick={() => setTela({ nome: 'usuarios' })} className="p-2 text-slate-500 hover:text-slate-900" aria-label="Usuários">
+                <Users className="size-5" aria-hidden />
+              </button>
+            )}
             <button
               onClick={() => setTela({ nome: 'configuracoes' })}
               className="p-2 text-slate-500 hover:text-slate-900"
@@ -107,6 +134,17 @@ function App() {
         )}
         {tela.nome === 'catalogo' && <CatalogoPage onVoltar={() => setTela({ nome: 'inicio' })} />}
         {tela.nome === 'configuracoes' && <ConfiguracoesPage onVoltar={() => setTela({ nome: 'inicio' })} />}
+        {tela.nome === 'usuarios' &&
+          (papel === 'admin' ? (
+            <UsuariosPage onVoltar={() => setTela({ nome: 'inicio' })} />
+          ) : (
+            <>
+              <p role="alert" className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
+                Acesso restrito a administradores.
+              </p>
+              <HomePage onAbrirCliente={abrirCliente} onAbrirOS={abrirOS} />
+            </>
+          ))}
         {tela.nome === 'documento' && tela.tipo === 'comprovante' && (
           <ComprovanteVistoriaPage osId={tela.osId} onVoltar={() => abrirOS(tela.osId)} />
         )}
